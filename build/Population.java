@@ -17,10 +17,19 @@ public class Population {
 	//solution index (-1 until one is found
 	int solutionIndex = -1;
 	boolean hasSolution;
+	int mutations;
 	
+	/**
+	 * Initialize a population with an initial size.  If size is zero, an empty population
+	 * will be created.
+	 * 
+	 * @param size
+	 * @param boardSize
+	 */
 	public Population(int size, int boardSize) {
 		this.size = size;
 		hasSolution = false;
+		mutations =0;
 		chromosomes = new ArrayList<Board>();
 		fitnessSum = 0;
 		//generate a random population and initialize fitness sum
@@ -32,6 +41,11 @@ public class Population {
 		}
 	}
 	
+	/**
+	 * Add an individual to the population
+	 * 
+	 * @param b
+	 */
 	public void addChromosome(Board b){
 		chromosomes.add(b);
 		int newFitness = b.getFitness();
@@ -48,8 +62,11 @@ public class Population {
 	
 	
 	/**
-	 * This should simulate the roulette wheel selection technique for random selection. 
-	 * As such higher fitness individuals should be selected.
+	 * This method will select a parent for breeding.  It will use a ranked selection technique
+	 * to pick the parent.  The best fitness parent will have the highest probability of being 
+	 * selected, and the lowest rank will have a probability approaching zero.
+	 * 
+	 * 
 	 * @return A random board from the population.
 	 */
 	public Board randomSelect(){
@@ -58,9 +75,8 @@ public class Population {
 		//generate probabilities
 		double probabilities[] = new double[chromosomes.size()];
 		for(int i =0; i<chromosomes.size();i++){
-			double prob = (double)(chromosomes.get(i).getFitness()/fitnessSum);
-			System.out.println(chromosomes.get(i).getFitness());
-			//double prob = (double)(((double)i)/((double)size*((double)size+1)/2));
+			// The Rank / (N(N+1)/2)
+			double prob = (double)(((double)i)/((double)size*((double)size+1)/2));
 			probabilities[i] = prob_sum + prob;
 			prob_sum = probabilities[i];
 		}
@@ -77,6 +93,17 @@ public class Population {
 		
 	}
 	
+	/**
+	 * This method will create a child Board based on the two parent boards that 
+	 * are inputs.  A crossover point will be selected at random and the boards
+	 * will swap values after that point to create the child.
+	 * 
+	 * 
+	 * @param father
+	 * @param mother
+	 * @param crossoverPoint
+	 * @return
+	 */
 	public Board reproduceCrossover(Board father, Board mother, int crossoverPoint){
 		Board child = new Board(father.size);
 		
@@ -94,6 +121,13 @@ public class Population {
 		
 	}
 	
+	/**
+	 * This will mutate values in the board at a certain rate.
+	 * 
+	 * @param b
+	 * @param mutationRate
+	 * @return
+	 */
 	public Board mutateChromosome(Board b , double mutationRate){
 		Board mutant = b;
 		boolean isMutated = false;
@@ -108,6 +142,7 @@ public class Population {
 				}while(moveTo==b.getQueenPosition(i));
 				mutant.moveQueen(i, moveTo);
 				isMutated=true;
+				this.mutations++;
 			}
 			else{
 				mutant.moveQueen(i, b.getQueenPosition(i));
@@ -120,6 +155,9 @@ public class Population {
 		return mutant;
 	}
 	
+	/**
+	 * Method to print the solution for testing purpose to ensure it actually found it.
+	 */
 	public void printSolution(){
 		if (hasSolution)
 			System.out.println(chromosomes.get(size).toString());
@@ -131,7 +169,9 @@ public class Population {
 		// TODO Auto-generated method stub
 		return hasSolution;
 	}
-	
+	/**
+	 * This will sore the population by the fitness scores of the members.
+	 */
 	public void sortByFitness(){
 		Collections.sort(chromosomes, new Comparator<Board>(){
 
