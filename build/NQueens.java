@@ -131,7 +131,7 @@ public class NQueens {
 		}	
 		stop = System.currentTimeMillis();
 		length = stop-start;
-		//population.printSolution();
+		population.printSolution();
 		System.out.println("\nFor Board Size : "+boardSize+ " Solution found in : " + length + " ms \n Number of generations : "+generations);
 		System.out.println("Number of offspring generated : " + crossovers + "  # of Mutations : " +mutations);
 	}
